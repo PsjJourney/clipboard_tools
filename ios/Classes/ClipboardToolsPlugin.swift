@@ -2,15 +2,23 @@ import Flutter
 import UIKit
 import CommonCrypto
 
-public class ClipboardToolsPlugin: NSObject, FlutterPlugin {
+public class ClipboardToolsPlugin: NSObject, FlutterPlugin, FlutterStreamHandler {
   private var channel: FlutterMethodChannel?
+  private var eventChannel: FlutterEventChannel?
+  private var eventSink: FlutterEventSink?
   private var lastChangeCount: Int?
 
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "clipboard_tools", binaryMessenger: registrar.messenger())
+    let eventChannel = FlutterEventChannel(name: "clipboard_tools/events", binaryMessenger: registrar.messenger())
+
     let instance = ClipboardToolsPlugin()
     instance.channel = channel
+
     registrar.addMethodCallDelegate(instance, channel: channel)
+    eventChannel.setStreamHandler(instance)
+
+    instance.eventChannel = eventChannel
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -18,11 +26,21 @@ public class ClipboardToolsPlugin: NSObject, FlutterPlugin {
     case "getPlatformVersion":
       result("iOS " + UIDevice.current.systemVersion)
     case "getClipboardContent":
-      result(getClipboardContent())
+      let content = getClipboardContent()
+      let text = content ?? ""
+      log(message: "getClipboardContent: " + text)
+      sendToFlutter(type: "getClipboardContent", content: text)
+      result(content)
     case "getClipboardIdentifier":
-      result(getClipboardIdentifier())
+      let identifier = getClipboardIdentifier()
+      log(message: "getClipboardIdentifier: " + identifier)
+      sendToFlutter(type: "getClipboardIdentifier", content: identifier)
+      result(identifier)
     case "hasClipboardChanged":
-      result(hasClipboardChanged())
+      let changed = hasClipboardChanged()
+      log(message: "hasClipboardChanged: \(changed)")
+      sendToFlutter(type: "hasClipboardChanged", content: changed)
+      result(changed)
     default:
       result(FlutterMethodNotImplemented)
     }
@@ -76,7 +94,7 @@ public class ClipboardToolsPlugin: NSObject, FlutterPlugin {
   private func hasClipboardChanged() -> Bool {
     let currentCount = UIPasteboard.general.changeCount
 
-    // 第一次访问时，仅记录当前值，不认为是“有变化”
+    // First time: just record, do not treat as changed
     guard let last = lastChangeCount else {
       lastChangeCount = currentCount
       return false
@@ -87,6 +105,10 @@ public class ClipboardToolsPlugin: NSObject, FlutterPlugin {
       lastChangeCount = currentCount
     }
     return changed
+  }
+
+  private func sendToFlutter(type: String, content: Any) {
+    eventSink?(["type": type, "content": content])
   }
 
   private func currentMillis() -> Int64 {
@@ -108,5 +130,20 @@ public class ClipboardToolsPlugin: NSObject, FlutterPlugin {
 
     return digestData.map { String(format: "%02x", $0) }.joined()
   }
-}
 
+  private func log(message: String) {
+    print("[ClipboardTools][iOS] \(message)")
+  }
+
+  // MARK: - FlutterStreamHandler
+
+  public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+    eventSink = events
+    return nil
+  }
+
+  public func onCancel(withArguments arguments: Any?) -> FlutterError? {
+    eventSink = nil
+    return nil
+  }
+}
