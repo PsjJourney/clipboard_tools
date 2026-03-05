@@ -21,12 +21,30 @@ class _MyAppState extends State<MyApp> {
   final _clipboardToolsPlugin = ClipboardTools();
   String? _clipboardContent;
   bool _hasClipBoardChanged = false;
+  static const EventChannel _eventChannel =
+      EventChannel('clipboard_tools/events');
+  late StreamSubscription _subscription;
 
   @override
   void initState() {
     super.initState();
     log("main initState");
     initPlatformState();
+    _subscription = _eventChannel.receiveBroadcastStream().listen(
+      (dynamic event) {
+        print('Received event: $event');
+        // 在这里更新 UI 或处理业务逻辑
+        setState(() {
+          // _data = event;
+        });
+      },
+      onError: (dynamic error) {
+        print('Received error: $error');
+      },
+      onDone: () {
+        print('Stream closed');
+      },
+    );
   }
 
   @override
@@ -36,7 +54,7 @@ class _MyAppState extends State<MyApp> {
     hasClipboardChange();
   }
 
-  void hasClipboardChange() async{
+  void hasClipboardChange() async {
     bool a = await _clipboardToolsPlugin.hasClipboardChanged();
     log('hasClipboardChange $a');
   }
@@ -54,8 +72,8 @@ class _MyAppState extends State<MyApp> {
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
     try {
-      platformVersion =
-          await _clipboardToolsPlugin.getPlatformVersion() ?? 'Unknown platform version';
+      platformVersion = await _clipboardToolsPlugin.getPlatformVersion() ??
+          'Unknown platform version';
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }
@@ -119,5 +137,11 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
   }
 }
