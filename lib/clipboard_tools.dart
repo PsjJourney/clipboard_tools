@@ -16,7 +16,7 @@ class ClipboardTools {
     return ClipboardToolsPlatform.instance.getClipboardContent();
   }
 
-  Future<num?> getClipboardTimestamp() {
+  Future<num?> _getClipboardTimestamp() {
     return ClipboardToolsPlatform.instance.getClipboardTimestamp();
   }
 
@@ -31,7 +31,7 @@ class ClipboardTools {
     if (Platform.isIOS) {
       return await _getChangeContent();
     } else if (Platform.isAndroid) {
-      final currentTimestamp = await getClipboardTimestamp();
+      final currentTimestamp = await _getClipboardTimestamp();
       if (_lastClipboardTimestamp == null) {
         _lastClipboardTimestamp = currentTimestamp;
         return true;

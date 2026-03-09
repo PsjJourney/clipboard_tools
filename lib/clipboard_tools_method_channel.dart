@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -23,8 +25,12 @@ class MethodChannelClipboardTools extends ClipboardToolsPlatform {
 
   @override
   Future<num?> getClipboardTimestamp() async {
-    final timestamp = await methodChannel.invokeMethod<num>('getClipboardTimestamp');
-    return timestamp;
+    if (Platform.isAndroid) {
+      final timestamp = await methodChannel.invokeMethod<num>('getClipboardTimestamp');
+      return timestamp;
+    } else {
+      return null;
+    }
   }
 
   @override
