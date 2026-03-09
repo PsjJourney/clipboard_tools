@@ -13,20 +13,23 @@ class MethodChannelClipboardTools extends ClipboardToolsPlatform {
 
   @override
   Future<String?> getPlatformVersion() async {
-    final version = await methodChannel.invokeMethod<String>('getPlatformVersion');
+    final version =
+        await methodChannel.invokeMethod<String>('getPlatformVersion');
     return version;
   }
 
   @override
   Future<String?> getClipboardContent() async {
-    final version = await methodChannel.invokeMethod<String>('getClipboardContent');
+    final version =
+        await methodChannel.invokeMethod<String>('getClipboardContent');
     return version;
   }
 
   @override
   Future<num?> getClipboardTimestamp() async {
     if (Platform.isAndroid) {
-      final timestamp = await methodChannel.invokeMethod<num>('getClipboardTimestamp');
+      final timestamp =
+          await methodChannel.invokeMethod<num>('getClipboardTimestamp');
       return timestamp;
     } else {
       return null;
@@ -34,8 +37,12 @@ class MethodChannelClipboardTools extends ClipboardToolsPlatform {
   }
 
   @override
-  Future<bool> getChangeContent() async {
-    final result = await methodChannel.invokeMethod<bool>('getChangeContent');
-    return result ?? false;
+  Future<bool?> getChangeContent() async {
+    if (Platform.isIOS) {
+      final result = await methodChannel.invokeMethod<bool>('getChangeContent');
+      return result ?? false;
+    } else {
+      return null;
+    }
   }
 }
