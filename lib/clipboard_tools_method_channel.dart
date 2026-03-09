@@ -28,12 +28,8 @@ class MethodChannelClipboardTools extends ClipboardToolsPlatform {
   }
 
   @override
-  Future<bool> hasClipboardChanged(String lastIdentifier) async {
-    if (defaultTargetPlatform == TargetPlatform.iOS) {
-      final result = await methodChannel.invokeMethod<bool>('hasClipboardChanged');
-      return result ?? false;
-    }
-    final currentIdentifier = await methodChannel.invokeMethod<String>('getClipboardIdentifier');
-    return currentIdentifier != lastIdentifier;
+  Future<bool> getChangeContent() async {
+    final result = await methodChannel.invokeMethod<bool>('getChangeContent');
+    return result ?? false;
   }
 }

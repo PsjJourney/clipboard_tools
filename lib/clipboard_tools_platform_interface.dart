@@ -35,7 +35,7 @@ abstract class ClipboardToolsPlatform extends PlatformInterface {
     throw UnimplementedError('getClipboardTimestamp() has not been implemented.');
   }
 
-  Future<bool> hasClipboardChanged(String lastIdentifier) {
-    throw UnimplementedError('hasClipboardChanged() has not been implemented.');
+  Future<bool> getChangeContent() {
+    throw UnimplementedError('getChangeContent() has not been implemented.');
   }
 }

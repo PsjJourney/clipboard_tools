@@ -31,15 +31,10 @@ public class ClipboardToolsPlugin: NSObject, FlutterPlugin, FlutterStreamHandler
       log(message: "getClipboardContent: " + text)
       sendToFlutter(type: "getClipboardContent", content: text)
       result(content)
-    case "getClipboardIdentifier":
-      let identifier = getClipboardIdentifier()
-      log(message: "getClipboardIdentifier: " + identifier)
-      sendToFlutter(type: "getClipboardIdentifier", content: identifier)
-      result(identifier)
-    case "hasClipboardChanged":
-      let changed = hasClipboardChanged()
-      log(message: "hasClipboardChanged: \(changed)")
-      sendToFlutter(type: "hasClipboardChanged", content: changed)
+    case "getChangeContent":
+      let changed = getChangeContent()
+      log(message: "getChangeContent: \(changed)")
+      sendToFlutter(type: "getChangeContent", content: changed)
       result(changed)
     default:
       result(FlutterMethodNotImplemented)
@@ -54,44 +49,7 @@ public class ClipboardToolsPlugin: NSObject, FlutterPlugin, FlutterStreamHandler
     return nil
   }
 
-  private func getClipboardIdentifier() -> String {
-    let pasteboard = UIPasteboard.general
-
-    // If clipboard is effectively empty
-    if pasteboard.string == nil &&
-       pasteboard.url == nil &&
-       pasteboard.image == nil &&
-       pasteboard.items.isEmpty {
-      return "empty_\(currentMillis())"
-    }
-
-    if let text = pasteboard.string {
-      let preview = text.count > 20 ? String(text.prefix(20)) : text
-      let hash = md5Hash(text)
-      return "text_\(text.count)_\(preview)_\(hash)"
-    }
-
-    if let url = pasteboard.url {
-      return "uri_\(url.absoluteString)"
-    }
-
-    if let htmlData = pasteboard.data(forPasteboardType: "public.html"),
-       let html = String(data: htmlData, encoding: .utf8) {
-      let preview = html.count > 20 ? String(html.prefix(20)) : html
-      let hash = md5Hash(html)
-      return "html_\(html.count)_\(preview)_\(hash)"
-    }
-
-    // Fallback similar to Android's mime_* and unknown_*
-    if let types = pasteboard.types as? [String], !types.isEmpty {
-      let joined = types.joined(separator: ",")
-      return "mime_\(joined)_\(currentMillis())"
-    }
-
-    return "unknown_\(currentMillis())"
-  }
-
-  private func hasClipboardChanged() -> Bool {
+  private func getChangeContent() -> Bool {
     let currentCount = UIPasteboard.general.changeCount
 
     // First time: just record, do not treat as changed
