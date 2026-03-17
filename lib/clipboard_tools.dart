@@ -32,7 +32,7 @@ class ClipboardTools {
       return await _getChangeContent() ?? false;
     } else if (Platform.isAndroid) {
       final currentTimestamp = await _getClipboardTimestamp();
-      if (currentTimestamp == null || currentTimestamp == "") {
+      if (currentTimestamp == null) {
         return false;
       } else if (_lastClipboardTimestamp == null) {
         _lastClipboardTimestamp = currentTimestamp;
@@ -40,8 +40,8 @@ class ClipboardTools {
       } else {
         final hasChanged = _lastClipboardTimestamp != currentTimestamp;
         _lastClipboardTimestamp = currentTimestamp;
+        return hasChanged;
       }
-      return hasChanged;
     } else {
       return false;
     }
