@@ -10,6 +10,15 @@ class MockClipboardToolsPlatform
 
   @override
   Future<String?> getPlatformVersion() => Future.value('42');
+
+  @override
+  Future<String?> getClipboardContent() => Future.value();
+
+  @override
+  Future<num?> getClipboardTimestamp() => Future.value();
+
+  @override
+  Future<bool?> getChangeContent() => Future.value();
 }
 
 void main() {

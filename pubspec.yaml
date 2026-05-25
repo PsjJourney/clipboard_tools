@@ -11,6 +11,11 @@ dependencies:
   flutter:
     sdk: flutter
   plugin_platform_interface: ^2.0.2
+  shared_preferences:
+    git:
+      url: https://gitcode.com/openharmony-sig/flutter_packages.git
+      path: packages/shared_preferences/shared_preferences
+      ref: 'br_3.7.12-ohos-1.0.6'
 
 dev_dependencies:
   flutter_test:
