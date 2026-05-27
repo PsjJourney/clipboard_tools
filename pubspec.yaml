@@ -44,6 +44,8 @@ flutter:
         pluginClass: ClipboardToolsPlugin
       ios:
         pluginClass: ClipboardToolsPlugin
+      ohos:
+        pluginClass: ClipboardToolsPlugin
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:
