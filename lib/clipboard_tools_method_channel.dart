@@ -18,8 +18,22 @@ class MethodChannelClipboardTools extends ClipboardToolsPlatform {
     return version;
   }
 
+  // 鸿蒙平台判断，兼容官方SDK
+  bool get isOhos => Platform.operatingSystem == 'ohos';
+
   @override
   Future<String?> getClipboardContent() async {
+    if(isOhos){
+      try{
+        final content =
+        await methodChannel.invokeMethod<String>('getClipboardContent');
+        debugPrint('clipboard_tools: getClipboardContent -> $content');
+        return Future.value(content);
+      } catch(e){
+        debugPrint('clipboard_tools: getClipboardContent Error-> $e');
+      }
+      return Future.value(null);
+    }
     final version =
         await methodChannel.invokeMethod<String>('getClipboardContent');
     return version;
@@ -31,6 +45,15 @@ class MethodChannelClipboardTools extends ClipboardToolsPlatform {
       final timestamp =
           await methodChannel.invokeMethod<num>('getClipboardTimestamp');
       return timestamp;
+    } else if (isOhos) {
+      try {
+        final timestamp = await methodChannel.invokeMethod<num?>('getClipboardTimestamp');
+        debugPrint('clipboard_tools: getClipboardTimestamp -> $timestamp');
+        return Future.value(timestamp);
+      } catch (e) {
+        debugPrint('clipboard_tools: getClipboardTimestamp -> $e');
+        return Future.value(null);
+      }
     } else {
       return null;
     }

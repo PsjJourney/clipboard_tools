@@ -51,6 +51,8 @@ class ClipboardTools {
     );
   }
 
+  // 鸿蒙平台判断，兼容官方SDK
+  bool get isOhos => Platform.operatingSystem == 'ohos';
   /// Check if clipboard content has changed.
   /// On iOS: native plugin uses UIPasteboard.changeCount and returns bool (lastIdentifier ignored).
   /// On Android: compares getClipboardTimestamp() with last value (unchanged).
@@ -58,6 +60,19 @@ class ClipboardTools {
     if (Platform.isIOS) {
       return await _getChangeContent() ?? false;
     } else if (Platform.isAndroid) {
+      await _ensureLastClipboardTimestampLoaded();
+      final currentTimestamp = await _getClipboardTimestamp();
+      if (currentTimestamp == null) {
+        return false;
+      } else if (_lastClipboardTimestamp == null) {
+        await _setLastClipboardTimestamp(currentTimestamp);
+        return true;
+      } else {
+        final hasChanged = _lastClipboardTimestamp != currentTimestamp;
+        await _setLastClipboardTimestamp(currentTimestamp);
+        return hasChanged;
+      }
+    } else if (isOhos) {
       await _ensureLastClipboardTimestampLoaded();
       final currentTimestamp = await _getClipboardTimestamp();
       if (currentTimestamp == null) {
