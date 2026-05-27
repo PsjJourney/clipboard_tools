@@ -1,0 +1,22 @@
+{
+  "module": {
+    "name": "clipboard_tools",
+    "type": "har",
+    "deviceTypes": [
+      "default",
+      "tablet"
+    ],
+    "requestPermissions": [
+      {
+        "name": "ohos.permission.READ_PASTEBOARD",
+        "reason": "$string:reason_paste",
+        "usedScene": {
+          "abilities": [
+            "EntryAbility"
+          ],
+          "when":"always"
+        }
+      }
+    ]
+  }
+}
